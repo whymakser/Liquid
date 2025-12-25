@@ -4,7 +4,8 @@ from pyrogram.enums import ParseMode
 
 async def sm_cmd(client, message, args):
     if not args:
-        return await message.edit("<b>Введите название музыки.</b>")
+        await message.edit("<b>Напиши название песни</b>")
+        return
 
     query = " ".join(args)
     try:
@@ -13,7 +14,8 @@ async def sm_cmd(client, message, args):
         results = await client.get_inline_bot_results("lybot", query)
         
         if not results or not results.results:
-            return await message.edit(f"<b>❌ Музыка <code>{query}</code> не найдена.</b>")
+            await message.edit(f"<b>❌ Не нашел <code>{query}</code></b>")
+            return
 
         await client.send_inline_bot_result(
             chat_id=message.chat.id,
@@ -25,7 +27,7 @@ async def sm_cmd(client, message, args):
         await message.delete()
         
     except Exception as e:
-        await message.edit(f"<b>❌ Ошибка:</b> <code>{str(e)}</code>")
+        await message.edit(f"<b>Ошибка:</b> <code>{str(e)}</code>")
 
 def register(app, commands, module_name):
     commands["sm"] = {"func": sm_cmd, "module": module_name}
