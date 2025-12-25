@@ -1,0 +1,32 @@
+import os
+import json
+from pyrogram import Client, filters
+from pyrogram.enums import ParseMode
+
+async def sm_cmd(client, message, args):
+    if not args:
+        return await message.edit("<b><emoji document_id=5210952531676502223>⚠️</emoji> Введите название музыки.</b>")
+
+    query = " ".join(args)
+    try:
+        await message.edit(f"<b><emoji document_id=5312311680192028682>🔍</emoji> Ищу:</b> <code>{query}</code>")
+        
+        results = await client.get_inline_bot_results("lybot", query)
+        
+        if not results.results:
+            return await message.edit(f"<b><emoji document_id=5210813098314704058>❌</emoji> Музыка <code>{query}</code> не найдена.</b>")
+
+        await client.send_inline_bot_result(
+            chat_id=message.chat.id,
+            query_id=results.query_id,
+            result_id=results.results[0].id,
+            reply_to_message_id=message.reply_to_message.id if message.reply_to_message else None
+        )
+        
+        await message.delete()
+        
+    except Exception as e:
+        await message.edit(f"<b><emoji document_id=5210813098314704058>❌</emoji> Ошибка:</b> <code>{str(e)}</code>")
+
+def register(app, commands, module_name):
+    commands["sm"] = {"func": sm_cmd, "module": module_name}
