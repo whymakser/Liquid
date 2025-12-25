@@ -11,28 +11,32 @@ async def sm_cmd(client, message, args):
         await message.edit(f"<blockquote><emoji id=5891211339170326418>⌛️</emoji> <b>Searching...</b></blockquote>")
         
         await client.send_message("lybot", query)
-        
-        await asyncio.sleep(1.5)
+        await asyncio.sleep(2)
         
         async for msg in client.get_chat_history("lybot", limit=1):
             if msg.reply_markup:
                 await msg.click(0)
-                await asyncio.sleep(1.5)
+                await asyncio.sleep(2)
             else:
                 return await message.edit("<emoji id=5778527486270770928>❌</emoji> <b>Not found</b>")
 
-        async for msg in client.get_chat_history("lybot", limit=1):
-            if msg.audio:
-                await client.copy_message(
-                    chat_id=message.chat.id,
-                    from_chat_id="lybot",
-                    message_id=msg.id,
-                    caption="",
-                    reply_to_message_id=message.reply_to_message.id if message.reply_to_message else None
-                )
-                await message.delete()
-            else:
-                await message.edit("<emoji id=5778527486270770928>❌</emoji> <b>Audio error</b>")
+        history = []
+        async for m in client.get_chat_history("lybot", limit=2):
+            history.append(m)
+
+        target = history[1] if len(history) > 1 else history[0]
+
+        if target.audio:
+            await client.copy_message(
+                chat_id=message.chat.id,
+                from_chat_id="lybot",
+                message_id=target.id,
+                caption="",
+                reply_to_message_id=message.reply_to_message.id if message.reply_to_message else None
+            )
+            await message.delete()
+        else:
+            await message.edit("<emoji id=5778527486270770928>❌</emoji> <b>Audio not found</b>")
                 
     except Exception as e:
         await message.edit(f"<emoji id=5778527486270770928>❌</emoji> <b>Error:</b> <code>{str(e)}</code>")
