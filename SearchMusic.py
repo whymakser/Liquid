@@ -20,17 +20,17 @@ async def sm_cmd(client, message, args):
             else:
                 return await message.edit("<emoji id=5778527486270770928>❌</emoji> <b>Not found</b>")
 
-        history = []
-        async for m in client.get_chat_history("lybot", limit=2):
-            history.append(m)
+        audio_msg = None
+        async for m in client.get_chat_history("lybot", limit=3):
+            if m.audio:
+                audio_msg = m
+                break
 
-        target = history[1] if len(history) > 1 else history[0]
-
-        if target.audio:
+        if audio_msg:
             await client.copy_message(
                 chat_id=message.chat.id,
                 from_chat_id="lybot",
-                message_id=target.id,
+                message_id=audio_msg.id,
                 caption="",
                 reply_to_message_id=message.reply_to_message.id if message.reply_to_message else None
             )
